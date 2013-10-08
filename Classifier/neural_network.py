@@ -3,24 +3,46 @@
 
 __author__ = 'Mario'
 
+import os
 import neurolab as nl
 import numpy as np
-import process_samples as ps
 
-from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn import svm
 
-from elm import ELMClassifier
-from random_hidden_layer import SimpleRandomHiddenLayer, RBFRandomHiddenLayer
+from elm.elm import ELMClassifier
+from elm.random_hidden_layer import SimpleRandomHiddenLayer, RBFRandomHiddenLayer
 
-def run_lvq(train_input, train_target):
-    #Convert Target Dimension
-    train_target = target_1d_to_2d(train_target)
+def run_lvq(train_input, train_target, test_input, test_target):
 
-    #Train Network
-    net = nl.net.newlvq(nl.tool.minmax(train_input), 30, [.5, .5])
-    error = net.train(train_input, train_target, epochs=100, goal=-1, show=10, adapt=True)
+    file = '../Databases/Temp/lvq.net'
+
+    def add_distf(net):
+        def euclidean(A, B):
+            return np.sqrt(np.sum(np.square(A-B), axis=1))
+        for layer in net.layers:
+            layer.distf = euclidean
+
+
+    def remove_distf(net):
+        for layer in net.layers:
+            layer.distf = None
+
+    net = None
+    if os.path.isfile(file):
+        net = nl.tool.load(file)
+        add_distf(net)
+    else:
+        #Convert Target Dimension
+        train_target = target_1d_to_2d(train_target)
+
+        #Train Network
+        net = nl.net.newlvq(nl.tool.minmax(train_input), 30, [.7, .3])
+        error = net.train(train_input, train_target, epochs=100, goal=-1, show=10, adapt=True)
+
+        remove_distf(net)
+        net.save(file)
+        add_distf(net)
 
     #Plot Results
 #    import  pylab as pl
@@ -30,8 +52,12 @@ def run_lvq(train_input, train_target):
 #    pl.ylabel(u'Erro (MSE)')
 #    pl.show()
 
-#    nl.tool.save(net, 'net')
+    output = net.sim(test_input)
+    output = target_2d_to_1d(output)
+    confusion_matrix(output, test_target)
+
     return net
+
 
 def run_ff(train_input, train_target):
     #Convert Target Dimension
@@ -44,6 +70,7 @@ def run_ff(train_input, train_target):
     error = net.train(train_input, train_target, epochs=100, goal=-1, show=10)
     return net
 
+
 def run_er(train_input, train_target):
     #Convert Target Dimension
     train_target = target_1d_to_2d(train_target)
@@ -54,13 +81,16 @@ def run_er(train_input, train_target):
 
     return net
 
+
 def target_1d_to_2d(targets):
     pos = targets
     neg = np.logical_not(targets)
     return np.transpose(np.vstack((pos,neg)))
 
+
 def target_2d_to_1d(targets):
     return targets[:,0]
+
 
 def confusion_matrix(results, targets):
     results_2d = target_1d_to_2d(results)
@@ -73,16 +103,19 @@ def confusion_matrix(results, targets):
     p = tp + fn
     n = fp + tn
 
-    print 'True Positives: ', tp
-    print 'False Negatives: ', fn
-    print 'True Negatives: ', tn
-    print 'False Positives: ', fp
-
+    print 'TP: ', tp,
+    print 'FN: ', fn
+    print 'TN: ', tn,
+    print 'FP: ', fp
+    print ''
     print 'Accuracy', (tp+tn)/float(p+n)
     print 'Specificity', (tp+tn)/float(p+n)
     print 'Precision', tp/float(tp+fp)
-
+    print ''
     print 'Rate: ', (tp+fn)/float(p+n)
+    print 'TP:', tp, 'FN:', fn, 'TN:', tn, 'FP:', fp, '(',  (tp+fn)/float(p+n), '%)'
+    print '---------------------------------'
+
 
 def roc_curve(results, targets):
     curve = np.array([])
@@ -107,6 +140,7 @@ def roc_curve(results, targets):
     return curve.reshape((-1, 2))
 
 # ELM
+
 
 def make_classifiers():
 
@@ -143,23 +177,30 @@ def make_classifiers():
                    ELMClassifier(srhl_tanh, regressor=log_reg),
                    ELMClassifier(srhl_sinsq),
                    ELMClassifier(srhl_tribas),
-                   ELMClassifier(srhl_hardlim),
-                   ELMClassifier(srhl_rbf)]
+                   ELMClassifier(srhl_hardlim)]
+                   # ELMClassifier(srhl_rbf)]
 
-    return classifiers
+    return names, classifiers
+
 
 def run_elm(train_input, train_target, test_input, test_target):
-    for clf in make_classifiers():
+
+    names, classifiers = make_classifiers()
+    for name, clf in zip(names, classifiers):
+        print name
         clf.fit(train_input, train_target)
 
-        score = clf.score(test_input, test_target)
-        print score
+        output = clf.predict(test_input)
+        confusion_matrix(output, test_target)
+
+        # score = clf.score(test_input, test_target)
+        # print score
+
 
 def run_svm(train_input, train_target, test_input, test_target):
     clf = svm.SVC()
     clf.fit(train_input, train_target)
 
     output = clf.predict(test_input)
-
     confusion_matrix(output, test_target)
 

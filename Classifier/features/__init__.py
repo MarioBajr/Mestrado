@@ -48,8 +48,8 @@ Features = enum(HOG='hog',
 # Auxiliar
 
 def _reduce_image(im, s):
-    w = int(im.shape[0]*s)
-    h = int(im.shape[1]*s)
+    h = int(im.shape[0]*s)
+    w = int(im.shape[1]*s)
     return cv.resize(im, (h, w))
 
 # Output 1D

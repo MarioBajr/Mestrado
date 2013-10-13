@@ -13,15 +13,15 @@ import numpy as np
 import cv2 as cv
 
 def pyramidal_scale(im, window_edge=64):
-    MOVE_WINDOW = 20
-    SCALE_STEP = .2
+    step_trans = 30
+    step_scale = .3
     s_max = 1/(min(im.shape[:1]) / float(window_edge))
 
     # s_step = int(s_max/SCALE_STEP)
 
-    step = int((1 - s_max)/SCALE_STEP)
+    step = int((1 - s_max)/step_scale)
 
-    IH, IW, ID = im.shape
+    ih, iw, id = im.shape
 
     attributes = []
     patterns = []
@@ -36,18 +36,18 @@ def pyramidal_scale(im, window_edge=64):
 
     for k in range(step):
 
-        s = 1 - (k * SCALE_STEP)
+        s = 1 - (k * step_scale)
 
-        h = int(IH * float(s))
-        w = int(IW * float(s))
+        h = int(ih * float(s))
+        w = int(iw * float(s))
 
         out = cv.resize(im, (w, h))
         d = int(window_edge/float(s))
 
-        for i in range(0, h-window_edge, MOVE_WINDOW):
-            for j in range(0, w-window_edge, MOVE_WINDOW):
+        for i in range(0, h-window_edge, step_trans):
+            for j in range(0, w-window_edge, step_trans):
                 if i+window_edge <= h and j+window_edge <= w:
-                    window = out[i:i+window_edge, j:j+window_edge]
+                    window = out[i:i+window_edge, j:j+window_edge, :]
                     patterns.append(window)
 
                     x = int(j/float(s))
@@ -55,4 +55,4 @@ def pyramidal_scale(im, window_edge=64):
                     attributes.append([(x, y), (x+d, y+d)])
             # break
 
-    return (attributes, patterns)
+    return attributes, patterns

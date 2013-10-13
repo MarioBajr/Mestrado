@@ -18,11 +18,10 @@ def run_lvq(train_input, train_target, test_input, test_target):
     file = '../Databases/Temp/lvq.net'
 
     def add_distf(net):
-        def euclidean(A, B):
-            return np.sqrt(np.sum(np.square(A-B), axis=1))
+        def euclidean(a, b):
+            return np.sqrt(np.sum(np.square(a-b), axis=1))
         for layer in net.layers:
             layer.distf = euclidean
-
 
     def remove_distf(net):
         for layer in net.layers:
@@ -38,7 +37,7 @@ def run_lvq(train_input, train_target, test_input, test_target):
 
         #Train Network
         net = nl.net.newlvq(nl.tool.minmax(train_input), 30, [.7, .3])
-        error = net.train(train_input, train_target, epochs=100, goal=-1, show=10, adapt=True)
+        error = net.train(train_input, train_target, epochs=100, goal=.05, show=1, adapt=True)
 
         remove_distf(net)
         net.save(file)
@@ -89,7 +88,7 @@ def target_1d_to_2d(targets):
 
 
 def target_2d_to_1d(targets):
-    return targets[:,0]
+    return targets[:, 0]
 
 
 def confusion_matrix(results, targets):
@@ -122,8 +121,8 @@ def roc_curve(results, targets):
     tp = 0
     fp = 0
 
-    p = targets[targets[:, 0]==1, 0].shape[0]
-    n = targets[targets[:, 0]==0, 0].shape[0]
+    p = targets[targets[:, 0] == 1, 0].shape[0]
+    n = targets[targets[:, 0] == 0, 0].shape[0]
 
     t = results.shape[0]
     for i in range(t):

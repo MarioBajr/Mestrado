@@ -11,12 +11,8 @@ import features as ft
 
 def process_samples(features, scale):
 
-    print features
-    #pos_path = '../Databases/lfwcrop_color/faces'
-    #neg_path = '../Databases/INRIA/negatives'
-
-    pos_path = '../Databases/Old/Positives'
-    neg_path = '../Databases/Old/Negatives'
+    pos_path = '../Databases/lfwcrop_color/faces'
+    neg_path = '../Databases/INRIA/negatives'
 
     pos_features = features_from_images(pos_path, features, scale)
     neg_features = features_from_images(neg_path, features, scale)
@@ -31,13 +27,14 @@ def features_from_images(images_folder, features, scale):
 
     files = os.listdir(images_folder)
     files = remove_invalid_images(files)
+    files = files[:1000]
 
     for f in files:
         im = cv.imread('%s/%s' % (images_folder, f))
 
         # Extract Feature
         pattern = ft.compose_features(im, features, scale)
-        patterns.append(pattern);
+        patterns.append(pattern)
 
     return np.array(patterns)
 
@@ -55,6 +52,10 @@ def remove_invalid_images(files):
 
 
 def split_classes(pos, neg, pc):
+
+    pos = np.random.permutation(pos)
+    neg = np.random.permutation(neg)
+
     (train_pos, test_pos) = split_samples(pos, pc)
     (train_neg, test_neg) = split_samples(neg, pc)
 

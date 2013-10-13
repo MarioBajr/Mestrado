@@ -27,7 +27,7 @@ def features_from_images(images_folder, features, scale):
 
     files = os.listdir(images_folder)
     files = remove_invalid_images(files)
-    files = files[:1000]
+    #files = files[:1000]
 
     for f in files:
         im = cv.imread('%s/%s' % (images_folder, f))

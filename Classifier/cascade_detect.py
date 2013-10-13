@@ -13,7 +13,7 @@ import numpy as np
 import cv2 as cv
 
 def pyramidal_scale(im, window_edge=64):
-    step_trans = 30
+    step_trans = 64
     step_scale = .3
     s_max = 1/(min(im.shape[:1]) / float(window_edge))
 
@@ -37,6 +37,7 @@ def pyramidal_scale(im, window_edge=64):
     for k in range(step):
 
         s = 1 - (k * step_scale)
+        print "scale", s
 
         h = int(ih * float(s))
         w = int(iw * float(s))

@@ -53,35 +53,12 @@ configurations = [
 def run_classifiers(features, scale):
     cache_enabled = True
 
-    #print "Processing Samples"
-    #(train, test) = process_samples(features, scale, cache_enabled)
-    #
-    #print "Split Samples"
-    #(train_target, train_input) = ps.split_target_input(train)
-    #(test_target, test_input) = ps.split_target_input(test)
+    print "Processing Samples"
+    (train, test) = process_samples(features, scale, cache_enabled)
 
-#TEMP
-    train_pos = ps.features_from_images('../Databases/Temp/db/train_pos', features, scale)
-    test_pos = ps.features_from_images('../Databases/Temp/db/test_pos', features, scale)
-    train_neg = ps.features_from_images('../Databases/Temp/db/train_neg', features, scale)
-    test_neg = ps.features_from_images('../Databases/Temp/db/test_neg', features, scale)
-
-    train_pos = np.concatenate((np.ones((train_pos.shape[0], 1)), train_pos), axis=1)
-    test_pos = np.concatenate((np.ones((test_pos.shape[0], 1)), test_pos), axis=1)
-
-    train_neg = np.concatenate((np.zeros((train_neg.shape[0], 1)), train_neg), axis=1)
-    test_neg = np.concatenate((np.zeros((test_neg.shape[0], 1)), test_neg), axis=1)
-
-    train = np.concatenate((train_pos, train_neg), axis=0)
-    train = np.random.permutation(train)
-
-    test = np.concatenate((test_pos, test_neg), axis=0)
-    test = np.random.permutation(test)
-
-
+    print "Split Samples"
     (train_target, train_input) = ps.split_target_input(train)
     (test_target, test_input) = ps.split_target_input(test)
-#END
 
     print "LVQ Training"
     net = nn.run_lvq(train_input, train_target, test_input, test_target)

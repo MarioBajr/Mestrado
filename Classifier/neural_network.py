@@ -10,38 +10,21 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn import svm
 
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+
 from elm.elm import ELMClassifier
 from elm.random_hidden_layer import SimpleRandomHiddenLayer, RBFRandomHiddenLayer
 
+
 def run_lvq(train_input, train_target, test_input, test_target):
 
-    file = '../Databases/Temp/lvq.net'
+    #Convert Target Dimension
+    train_target = target_1d_to_2d(train_target)
 
-    def add_distf(net):
-        def euclidean(a, b):
-            return np.sqrt(np.sum(np.square(a-b), axis=1))
-        for layer in net.layers:
-            layer.distf = euclidean
-
-    def remove_distf(net):
-        for layer in net.layers:
-            layer.distf = None
-
-    net = None
-    if os.path.isfile(file):
-        net = nl.tool.load(file)
-        add_distf(net)
-    else:
-        #Convert Target Dimension
-        train_target = target_1d_to_2d(train_target)
-
-        #Train Network
-        net = nl.net.newlvq(nl.tool.minmax(train_input), 30, [.7, .3])
-        error = net.train(train_input, train_target, epochs=100, goal=.05, show=1, adapt=True)
-
-        remove_distf(net)
-        net.save(file)
-        add_distf(net)
+    #Train Network
+    net = nl.net.newlvq(nl.tool.minmax(train_input), 30, [.5, .5])
+    error = net.train(train_input, train_target, epochs=50, goal=.05, show=10, adapt=True)
 
     #Plot Results
 #    import  pylab as pl
@@ -56,7 +39,6 @@ def run_lvq(train_input, train_target, test_input, test_target):
     confusion_matrix(output, test_target)
 
     return net
-
 
 def run_ff(train_input, train_target):
     #Convert Target Dimension
@@ -203,3 +185,12 @@ def run_svm(train_input, train_target, test_input, test_target):
     output = clf.predict(test_input)
     confusion_matrix(output, test_target)
 
+
+def run_adaboost(train_input, train_target, test_input, test_target):
+    clf = AdaBoostClassifier(DecisionTreeClassifier(max_depth=1),
+                             algorithm="SAMME",
+                             n_estimators=200)
+    clf.fit(train_input, train_target)
+
+    output = clf.predict(test_input)
+    confusion_matrix(output, test_target)

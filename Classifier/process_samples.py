@@ -27,7 +27,7 @@ def features_from_images(images_folder, features, scale):
 
     files = os.listdir(images_folder)
     files = remove_invalid_images(files)
-    #files = files[:1000]
+    files = files[:4000]
 
     for f in files:
         im = cv.imread('%s/%s' % (images_folder, f))
@@ -87,27 +87,31 @@ def split_samples(samples, pc):
 def split_target_input(samples):
     return samples[:, 0], samples[:, 1:]
 
-# def pyramidal_scale(im):
-#     D = 10
-#
-#     IH, IW, ID = im.shape
-#     print IH, IW, ID
-#
-#     attributes = []
-#     patterns = []
-#
-#     list = convert_sample(im)
-#     for s in range(1, 2):
-#         h = IH/float(H)
-#         w = IW/float(W)
-#         for i in range(0, IH-H, D):
-#             for j in range(0, IW-W, D):
-#                 pattern = np.array([])
-#                 for out in list:
-#                     window = out[i:i+H, j:j+W]
-#                     pattern = np.append(pattern, window.reshape(-1))
-#                 patterns.append(pattern)
-#                 attributes.append([s, (j, i), (j+W, i+H)])
-#             break
-#
-#     return (attributes, patterns)
+
+def process_network_inputs(features, scale):
+
+    print features
+    features_name = "_".join(features)
+    train_file_path = '../Databases/Temp/train_%s_%s' % (features_name, scale)
+    test_file_path = '../Databases/Temp/test_%s_%s' % (features_name, scale)
+
+    if os.path.isfile(train_file_path+'.npy') and os.path.isfile(test_file_path+'.npy'):
+        print "Loading Cache"
+        train = np.load(train_file_path+'.npy')
+        test = np.load(test_file_path+'.npy')
+    else:
+        print "Processing Samples"
+        (pos, neg) = process_samples(features=features, scale=scale)
+
+        print "Split Samples"
+        (train, test) = split_classes(pos, neg, .7)
+
+        print "Storing Cache"
+        np.save(train_file_path, train)
+        np.save(test_file_path, test)
+
+    (train_target, train_input) = split_target_input(train)
+    (test_target, test_input) = split_target_input(test)
+
+    print "train:", train.shape, "test:", test.shape
+    return train_target, train_input, test_target, test_input

@@ -7,8 +7,10 @@ import gabor_filter
 
 from skimage import feature
 
+
 def enum(**enums):
     return type('Enum', (), enums)
+
 
 Features = enum(HOG='hog',
                 LBP='LBP',
@@ -52,14 +54,15 @@ def _reduce_image(im, s):
     w = int(im.shape[1]*s)
     return cv.resize(im, (h, w))
 
-# Output 1D
 
+# Output 1D
 def _hog_feature(im):
     src = im
     if len(src.shape) == 3:
         src = cv.cvtColor(src, cv.COLOR_RGB2GRAY)
 
     return feature.hog(src, visualise=False, normalise=False)
+
 
 def _opencv_feature(feature, im):
 
@@ -95,16 +98,18 @@ def _opencv_feature(feature, im):
 
     return out
 
-# Output 2D
 
+# Output 2D
 def _lbp_feature(im):
     out = im
     if len(im.shape) == 3:
         out = cv.cvtColor(out, cv.COLOR_RGB2GRAY)
     return feature.local_binary_pattern(out, 8, 3)
 
+
 def _harris_feature(im):
     return feature.corner_harris(im)
+
 
 def _daisy_feature(im):
     out = im
@@ -112,8 +117,10 @@ def _daisy_feature(im):
         out = cv.cvtColor(out, cv.COLOR_RGB2GRAY)
     return feature.daisy(out)
 
+
 def _corner_shi_tomasi_feature(im):
     return feature.corner_shi_tomasi(im)
+
 
 def _gabor_feature(im):
     src = im
@@ -127,7 +134,7 @@ def _gabor_feature(im):
         lst.append(np.array(out))
     out = np.vstack([np.hstack(lst[0:3]), np.hstack(lst[3:6]), np.hstack(lst[6:9])])
     return out
-# Features Extractors
+
 
 def compose_features(im, features, scale):
     output = _reduce_image(im, scale)
@@ -138,5 +145,4 @@ def compose_features(im, features, scale):
             output = globals()[method_name](output)
         else:
             output = _opencv_feature(feature, output)
-
     return np.reshape(output, -1)

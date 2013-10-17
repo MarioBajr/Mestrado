@@ -10,14 +10,14 @@ def mkKernel(ks, sig, th , lm, ps):
     hks = ks/2
     theta = th * np.pi/180.
     psi = ps * np.pi/180.
-    xs=np.linspace(-1.,1.,ks)
-    ys=np.linspace(-1.,1.,ks)
+    xs = np.linspace(-1., 1., ks)
+    ys = np.linspace(-1., 1., ks)
     lmbd = np.float(lm)
-    x,y = np.meshgrid(xs,ys)
+    x, y = np.meshgrid(xs, ys)
     sigma = np.float(sig)/ks
     x_theta = x*np.cos(theta)+y*np.sin(theta)
     y_theta = -x*np.sin(theta)+y*np.cos(theta)
-    return np.array(np.exp(-0.5*(x_theta**2+y_theta**2)/sigma**2)*np.cos(2.*np.pi*x_theta/lmbd + psi),dtype=np.float32)
+    return np.array(np.exp(-0.5*(x_theta**2+y_theta**2)/sigma**2)*np.cos(2.*np.pi*x_theta/lmbd + psi), dtype=np.float32)
 
 # sigma    5 21
 # lambda  50 100

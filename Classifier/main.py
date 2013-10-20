@@ -9,9 +9,10 @@ from mixture import *
 if __name__ == '__main__':
 
     classifiers = [
-        #LVQClassifier(ClassifierType.LVQ, [ft.Features.DAISY], .5),
-        #LVQClassifier(ClassifierType.LVQ, [ft.Features.LBP, ft.Features.HOG], .5),
-        LVQClassifier(ClassifierType.LVQ, [ft.Features.LBP, ft.Features.GABOR], .25),
+        #LVQClassifier([ft.Features.DAISY], .5),
+        #LVQClassifier([ft.Features.LBP, ft.Features.HOG], .5),
+        #LVQClassifier([ft.Features.LBP, ft.Features.GABOR], .25),
+        AdaBoostClassifier([ft.Features.LBP, ft.Features.GABOR], .25)
     ]
 
     mixture = Mixture(classifiers)

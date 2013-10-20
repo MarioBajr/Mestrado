@@ -47,13 +47,6 @@ Features = enum(HOG='hog',
                 PyramidHARRIS="PyramidHARRIS",
                 )
 
-# Auxiliar
-
-def _reduce_image(im, s):
-    h = int(im.shape[0]*s)
-    w = int(im.shape[1]*s)
-    return cv.resize(im, (h, w))
-
 
 # Output 1D
 def _hog_feature(im):
@@ -117,18 +110,42 @@ def _gabor_feature(im):
     out = np.vstack([np.hstack(lst[0:3]), np.hstack(lst[3:6]), np.hstack(lst[6:9])])
     return out
 
+def _receptive_fields(im):
+    a = _field_window(im, (4, 4))
+    b = _field_window(im, (8, 8))
+    c = _field_window(im, (8, 1))
+    return a+b+c
 
-def compose_features(im, features, scale):
-    output = _reduce_image(im, scale)
 
+def _field_window(im, d):
+    dy, dx = d
+    h = im.shape[0]/dy
+    w = im.shape[1]/dx
+
+    output = []
+    for i in range(dy):
+        y = i*h
+        for j in range(dx):
+            x = j*w
+            out = im[y:y+h, x:x+w]
+            output.append(out.mean())
+    return output
+
+
+def compose_features(im, features):
+    output = im
     if len(output.shape) == 3:
         output = cv.cvtColor(output, cv.COLOR_RGB2GRAY)
+
     cv.equalizeHist(output, output)
 
-    for feature in features:
-        method_name = '_%s_feature' % feature.lower()
+    for f in features:
+        method_name = '_%s_feature' % f.lower()
         if method_name in globals():
             output = globals()[method_name](output)
         else:
-            output = _opencv_feature(feature, output)
+            output = _opencv_feature(f, output)
+
+    #output = cv.resize(output, (32, 32))
+    #return np.array(_receptive_fields(output))
     return np.reshape(output, -1)

@@ -9,66 +9,91 @@ import neural_network as nn
 import cascade_detect as cd
 import process_samples as ps
 
+from sklearn.externals import joblib
+
 cache_prefix = '../Databases/Temp/'
-
-def enum(**enums):
-    return type('Enum', (), enums)
-
-ClassifierType = enum(LVQ='lvq', ELM='elm', SVM='svm')
-
 
 class Classifier(object):
 
-    def __init__(self, classifier_type, features, scale):
-        self.classifier_type = classifier_type
+    def __init__(self, features, scale):
         self.features = features
         self.scale = scale
 
-    def run(self):
+    def load(self, file):
+        pass
+
+    def save(self, file, net):
+        pass
+
+    def run(self, input):
         pass
 
 
 class LVQClassifier(Classifier):
 
-    def __init__(self, classifier_type, features, scale):
-        super(LVQClassifier, self).__init__(classifier_type, features, scale)
+    def __init__(self, features, scale):
+        super(LVQClassifier, self).__init__(features, scale)
         self.net = self.__train()
 
+    def _add_distf(self, net):
+        def euclidean(a, b):
+            return np.sqrt(np.sum(np.square(a-b), axis=1))
+        for layer in net.layers:
+            layer.distf = euclidean
+
+    def _remove_distf(self, net):
+        for layer in net.layers:
+            layer.distf = None
+
     def __train(self):
-        def add_distf(net):
-            def euclidean(a, b):
-                return np.sqrt(np.sum(np.square(a-b), axis=1))
-            for layer in net.layers:
-                layer.distf = euclidean
-
-        def remove_distf(net):
-            for layer in net.layers:
-                layer.distf = None
-
-        def load_net(file):
-            net = None
-            if os.path.isfile(file):
-                net = nl.tool.load(file)
-                add_distf(net)
-            return net
-
-        def save_net(file, net):
-            remove_distf(net)
-            net.save(file)
-            add_distf(net)
-
         cache_file = '%slvq_%s_%s.net' % (cache_prefix, "_".join(self.features), self.scale)
-        net = load_net(cache_file)
+        net = self.load(cache_file)
 
         if not net:
             (train_target, train_input, test_target, test_input) = ps.process_network_inputs(self.features, self.scale)
             net = nn.run_lvq(train_input, train_target, test_input, test_target)
-            save_net(cache_file, net)
+            self.save(cache_file, net)
+        return net
+
+    def save(self, file, net):
+        self._remove_distf(net)
+        net.save(file)
+        self._add_distf(net)
+
+    def load(self, file):
+        net = None
+        if os.path.isfile(file):
+            net = nl.tool.load(file)
+            self.add_distf(net)
         return net
 
     def run(self, input):
         return self.net.sim(input)
 
+
+class AdaBoostClassifier(Classifier):
+    def __init__(self, features, scale):
+        super(AdaBoostClassifier, self).__init__(features, scale)
+        self.net = self.__train()
+
+    def __train(self):
+        cache_file = '%sadaboost_%s_%s.net' % (cache_prefix, "_".join(self.features), self.scale)
+        net = self.load(cache_file)
+
+        if not net:
+            (train_target, train_input, test_target, test_input) = ps.process_network_inputs(self.features, self.scale)
+            net = nn.run_adaboost(train_input, train_target, test_input, test_target)
+            self.save(cache_file, net)
+        return net
+
+    def save(self, file, net):
+        joblib.dump(net, file, )
+
+    def load(self, file):
+        net = None
+        if os.path.isfile(file):
+            net = joblib.load(file)
+        return net
 
 class Mixture(object):
 
@@ -80,7 +105,8 @@ class Mixture(object):
         def pyramidal(attrs, squares, features, scale):
             patterns = []
             for square in squares:
-                patterns.append(ft.compose_features(square, features, scale))
+                sqr = ps.reduce_image(square, scale)
+                patterns.append(ft.compose_features(sqr, features))
             patterns = np.array(patterns)
             return attrs, squares, patterns
 

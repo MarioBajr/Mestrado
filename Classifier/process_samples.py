@@ -21,8 +21,13 @@ def process_samples(features, scale):
     return pos_features, neg_features
 
 
-def features_from_images(images_folder, features, scale):
+def reduce_image(im, s):
+    h = int(im.shape[0]*s)
+    w = int(im.shape[1]*s)
+    return cv.resize(im, (h, w))
 
+
+def features_from_images(images_folder, features, scale):
     patterns = []
 
     files = os.listdir(images_folder)
@@ -33,7 +38,9 @@ def features_from_images(images_folder, features, scale):
         im = cv.imread('%s/%s' % (images_folder, f))
 
         # Extract Feature
-        pattern = ft.compose_features(im, features, scale)
+
+        im = reduce_image(im, scale)
+        pattern = ft.compose_features(im, features)
         patterns.append(pattern)
 
     return np.array(patterns)

@@ -22,8 +22,11 @@ def run_lvq(train_input, train_target, test_input, test_target):
     #Convert Target Dimension
     train_target = target_1d_to_2d(train_target)
 
+    p = train_target[:, 0].sum()/float(train_target.shape[0])
+    print "P: ", p, train_target.shape, train_target[:, 0].sum()
+
     #Train Network
-    net = nl.net.newlvq(nl.tool.minmax(train_input), 30, [.5, .5])
+    net = nl.net.newlvq(nl.tool.minmax(train_input), 30, [p, 1-p])
     error = net.train(train_input, train_target, epochs=50, goal=.05, show=10, adapt=True)
 
     #Plot Results

@@ -9,8 +9,8 @@ from mixture import *
 if __name__ == '__main__':
 
     classifiers = [
-        LVQClassifier(ClassifierType.LVQ, [ft.Features.DAISY], .5),
-        LVQClassifier(ClassifierType.LVQ, [ft.Features.LBP, ft.Features.HOG], .5),
+        #LVQClassifier(ClassifierType.LVQ, [ft.Features.DAISY], .5),
+        #LVQClassifier(ClassifierType.LVQ, [ft.Features.LBP, ft.Features.HOG], .5),
         LVQClassifier(ClassifierType.LVQ, [ft.Features.LBP, ft.Features.GABOR], .25),
     ]
 

@@ -57,24 +57,15 @@ def _reduce_image(im, s):
 
 # Output 1D
 def _hog_feature(im):
-    src = im
-    if len(src.shape) == 3:
-        src = cv.cvtColor(src, cv.COLOR_RGB2GRAY)
-
-    return feature.hog(src, visualise=False, normalise=False)
-
+    return feature.hog(im, visualise=False, normalise=False)
 
 def _opencv_feature(feature, im):
 
-    src = im
-    if len(src.shape) == 3:
-        src = cv.cvtColor(src, cv.COLOR_RGB2GRAY)
-
     #Normilizing Image
-    min = np.min(src)
-    max = np.max(src)
+    min = np.min(im)
+    max = np.max(im)
 
-    src= ((src- min) / (max - min)) * 255
+    src= ((im- min) / (max - min)) * 255
     src = src.astype(np.uint8)
 
     FeatureDetector = cv.FeatureDetector_create(feature)
@@ -101,10 +92,7 @@ def _opencv_feature(feature, im):
 
 # Output 2D
 def _lbp_feature(im):
-    out = im
-    if len(im.shape) == 3:
-        out = cv.cvtColor(out, cv.COLOR_RGB2GRAY)
-    return feature.local_binary_pattern(out, 8, 3)
+    return feature.local_binary_pattern(im, 8, 3)
 
 
 def _harris_feature(im):
@@ -112,10 +100,7 @@ def _harris_feature(im):
 
 
 def _daisy_feature(im):
-    out = im
-    if len(im.shape) == 3:
-        out = cv.cvtColor(out, cv.COLOR_RGB2GRAY)
-    return feature.daisy(out)
+    return feature.daisy(im)
 
 
 def _corner_shi_tomasi_feature(im):
@@ -123,13 +108,10 @@ def _corner_shi_tomasi_feature(im):
 
 
 def _gabor_feature(im):
-    src = im
-    if len(src.shape) == 3:
-        src = cv.cvtColor(src, cv.COLOR_RGB2GRAY)
     angles = 9
     lst = []
     for i, angle in [(a, math.degrees(a*math.pi/angles)) for a in range(angles)]:
-        out = gabor_filter.Process(src, 5, 50, angle, 90)
+        out = gabor_filter.Process(im, 5, 50, angle, 90)
         out *= 255
         lst.append(np.array(out))
     out = np.vstack([np.hstack(lst[0:3]), np.hstack(lst[3:6]), np.hstack(lst[6:9])])
@@ -138,10 +120,14 @@ def _gabor_feature(im):
 
 def compose_features(im, features, scale):
     output = _reduce_image(im, scale)
+
+    if len(output.shape) == 3:
+        output = cv.cvtColor(output, cv.COLOR_RGB2GRAY)
+    cv.equalizeHist(output, output)
+
     for feature in features:
         method_name = '_%s_feature' % feature.lower()
         if method_name in globals():
-        # if hasattr(globals(), method_name):
             output = globals()[method_name](output)
         else:
             output = _opencv_feature(feature, output)

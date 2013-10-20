@@ -86,7 +86,7 @@ class Mixture(object):
 
         colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 255, 255)]
 
-        attrs, squares = cd.pyramidal_scale(im, step_trans=32, step_scale=.3)
+        attrs, squares = cd.pyramidal_scale(im, step_trans=64)
 
         all_results = [-1] * len(squares)
 
@@ -103,6 +103,8 @@ class Mixture(object):
 
             for i, result in enumerate(results):
                 if result == 1:
+
+                    cv.imwrite('../Databases/Temp/temp2/%s.png' % i, squares[i])
                     #cv.rectangle(dst, attrs[i][0], attrs[i][1], color, 1)
 
                     if all_results[i] == -1:
@@ -112,6 +114,15 @@ class Mixture(object):
 
         for result in all_results:
             if result:
-                cv.rectangle(dst, result[0], result[1], (255, 255, 0), 2)
+                p0 = result[0]
+                p1 = result[1]
+
+                m = (p0[0]+((p1[0]-p0[0])/2.0), p0[1]+((p1[1]-p0[1])/2.0))
+
+                m = (int(m[0]), int(m[1]))
+                r = int(p1[0]-m[0])
+
+                cv.circle(dst, m, r, (255, 255, 0), 1)
+                #cv.rectangle(dst, result[0], result[1], (255, 255, 0), 2)
 
         return dst

@@ -2,11 +2,14 @@
 
 __author__ = 'Mario'
 
+import os
 import cv2 as cv
 import numpy as np
-import os
-
 import features as ft
+import random
+import math
+
+cache_file = '../Databases/Temp/net/'
 
 
 def process_samples(features, scale):
@@ -14,34 +17,75 @@ def process_samples(features, scale):
     pos_path = '../Databases/lfwcrop_color/faces'
     neg_path = '../Databases/INRIA/negatives'
 
-    pos_features = features_from_images(pos_path, features, scale)
+    pos_features = features_from_images(pos_path, features, scale, variations=10)
     neg_features = features_from_images(neg_path, features, scale)
     print 'processed:', pos_features.shape, neg_features.shape
 
     return pos_features, neg_features
 
 
-def reduce_image(im, s):
+def scale_image(im, s):
     h = int(im.shape[0]*s)
     w = int(im.shape[1]*s)
     return cv.resize(im, (h, w))
 
 
-def features_from_images(images_folder, features, scale):
+def rotate_image(image, angle):
+    image_center = tuple(np.array(image.shape[:2])/2)
+    rot_mat = cv.getRotationMatrix2D(image_center, angle, 1.0)
+
+    s = 0.95
+    p = image.shape[0]*s
+    result = cv.warpAffine(image, rot_mat, (int(p), int(p)), flags=cv.INTER_LINEAR)
+
+    d = int((image.shape[0]-p)/1)
+
+    result = result[d:d+p, d:d+p]
+
+    return result
+
+
+def degree_to_radians(ang):
+    return ang * (math.pi/180)
+
+
+def radians_to_degree(ang):
+    return ang * (180/math.pi)
+
+
+def random_between(min, max):
+    r = random.random()
+    return (max-min)*r + min
+
+
+def generate_variations(im, q):
+    results = [im]
+    for i in range(q):
+        ang = random_between(-10, 10)
+        out = rotate_image(im, ang)
+        scale = random_between(.9, 1.1)
+        out = scale_image(out, scale)
+        if random.random() > .5:
+            out = cv.flip(out, flipCode=1)
+        results.append(out)
+    return results
+
+
+def features_from_images(images_folder, features, scale, variations=1):
     patterns = []
 
     files = os.listdir(images_folder)
     files = remove_invalid_images(files)
-    files = files[:3000]
+    #files = files[:3000]
 
     for f in files:
         im = cv.imread('%s/%s' % (images_folder, f))
-
-        # Extract Feature
-
-        im = reduce_image(im, scale)
-        pattern = ft.compose_features(im, features)
-        patterns.append(pattern)
+        items = generate_variations(im, variations)
+        for item in items:
+            # Extract Feature
+            var = cv.resize(item, (int(im.shape[0]*scale), int(im.shape[1]*scale)))
+            pattern = ft.compose_features(var, features)
+            patterns.append(pattern)
 
     return np.array(patterns)
 
@@ -99,8 +143,8 @@ def process_network_inputs(features, scale):
 
     print features
     features_name = "_".join(features)
-    train_file_path = '../Databases/Temp/train_%s_%s' % (features_name, scale)
-    test_file_path = '../Databases/Temp/test_%s_%s' % (features_name, scale)
+    train_file_path = '%strain_%s_%s' % (cache_file, features_name, scale)
+    test_file_path = '%stest_%s_%s' % (cache_file, features_name, scale)
 
     if os.path.isfile(train_file_path+'.npy') and os.path.isfile(test_file_path+'.npy'):
         print "Loading Cache"

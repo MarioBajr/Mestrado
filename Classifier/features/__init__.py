@@ -52,13 +52,14 @@ Features = enum(HOG='hog',
 def _hog_feature(im):
     return feature.hog(im, visualise=False, normalise=False)
 
+
 def _opencv_feature(feature, im):
 
     #Normilizing Image
     min = np.min(im)
     max = np.max(im)
 
-    src= ((im- min) / (max - min)) * 255
+    src = ((im - min) / (max - min)) * 255
     src = src.astype(np.uint8)
 
     FeatureDetector = cv.FeatureDetector_create(feature)
@@ -110,10 +111,11 @@ def _gabor_feature(im):
     out = np.vstack([np.hstack(lst[0:3]), np.hstack(lst[3:6]), np.hstack(lst[6:9])])
     return out
 
+
 def _receptive_fields(im):
-    a = _field_window(im, (4, 4))
-    b = _field_window(im, (8, 8))
-    c = _field_window(im, (8, 1))
+    a = _field_window(im, (2, 2))
+    b = _field_window(im, (4, 4))
+    c = _field_window(im, (5, 1))
     return a+b+c
 
 
@@ -146,6 +148,6 @@ def compose_features(im, features):
         else:
             output = _opencv_feature(f, output)
 
-    #output = cv.resize(output, (32, 32))
-    #return np.array(_receptive_fields(output))
-    return np.reshape(output, -1)
+    output = cv.resize(output, (20, 20))
+    return np.array(_receptive_fields(output))
+    #return np.reshape(output, -1)

@@ -11,7 +11,7 @@ import process_samples as ps
 
 from sklearn.externals import joblib
 
-cache_prefix = '../Databases/Temp/'
+cache_prefix = '../Databases/Temp/net/'
 
 class Classifier(object):
 
@@ -35,13 +35,13 @@ class LVQClassifier(Classifier):
         super(LVQClassifier, self).__init__(features, scale)
         self.net = self.__train()
 
-    def _add_distf(self, net):
+    def __add_distf(self, net):
         def euclidean(a, b):
             return np.sqrt(np.sum(np.square(a-b), axis=1))
         for layer in net.layers:
             layer.distf = euclidean
 
-    def _remove_distf(self, net):
+    def __remove_distf(self, net):
         for layer in net.layers:
             layer.distf = None
 
@@ -56,33 +56,34 @@ class LVQClassifier(Classifier):
         return net
 
     def save(self, file, net):
-        self._remove_distf(net)
+        self.__remove_distf(net)
         net.save(file)
-        self._add_distf(net)
+        self.__add_distf(net)
 
     def load(self, file):
         net = None
         if os.path.isfile(file):
             net = nl.tool.load(file)
-            self.add_distf(net)
+            self.__add_distf(net)
         return net
 
     def run(self, input):
-        return self.net.sim(input)
+        results = self.net.sim(input)
+        results = nn.target_2d_to_1d(results)
+        return results
 
-
-class AdaBoostClassifier(Classifier):
+class SVMClassifier(Classifier):
     def __init__(self, features, scale):
-        super(AdaBoostClassifier, self).__init__(features, scale)
+        super(SVMClassifier, self).__init__(features, scale)
         self.net = self.__train()
 
     def __train(self):
-        cache_file = '%sadaboost_%s_%s.net' % (cache_prefix, "_".join(self.features), self.scale)
+        cache_file = '%ssvm_%s_%s.net' % (cache_prefix, "_".join(self.features), self.scale)
         net = self.load(cache_file)
 
         if not net:
             (train_target, train_input, test_target, test_input) = ps.process_network_inputs(self.features, self.scale)
-            net = nn.run_adaboost(train_input, train_target, test_input, test_target)
+            net = nn.run_svm(train_input, train_target, test_input, test_target)
             self.save(cache_file, net)
         return net
 
@@ -95,6 +96,39 @@ class AdaBoostClassifier(Classifier):
             net = joblib.load(file)
         return net
 
+    def run(self, input):
+        return self.net.predict(input)
+
+
+class AdaBoostClassifier(Classifier):
+    def __init__(self, features, scale):
+        super(AdaBoostClassifier, self).__init__(features, scale)
+        self.net = self.__train()
+        print self.net
+
+    def __train(self):
+        cache_file = '%sadaboost_%s_%s.net' % (cache_prefix, "_".join(self.features), self.scale)
+        net = self.load(cache_file)
+
+        if not net:
+            (train_target, train_input, test_target, test_input) = ps.process_network_inputs(self.features, self.scale)
+            net = nn.run_adaboost(train_input, train_target, test_input, test_target)
+            self.save(cache_file, net)
+        return net
+
+    def save(self, file, net):
+        joblib.dump(net, file)
+
+    def load(self, file):
+        net = None
+        if os.path.isfile(file):
+            net = joblib.load(file)
+        return net
+
+    def run(self, input):
+        return self.net.predict(input)
+
+
 class Mixture(object):
 
     def __init__(self, classifiers):
@@ -105,7 +139,7 @@ class Mixture(object):
         def pyramidal(attrs, squares, features, scale):
             patterns = []
             for square in squares:
-                sqr = ps.reduce_image(square, scale)
+                sqr = ps.scale_image(square, scale)
                 patterns.append(ft.compose_features(sqr, features))
             patterns = np.array(patterns)
             return attrs, squares, patterns
@@ -123,7 +157,6 @@ class Mixture(object):
 
             print "Run", patterns.shape
             results = classifier.run(patterns)
-            results = nn.target_2d_to_1d(results)
 
             color = colors.pop()
 

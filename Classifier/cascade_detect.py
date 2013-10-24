@@ -13,7 +13,6 @@ def pyramidal_scale(im, window_edge=64, step_trans=2, step_scale=1.2):
     s = window_edge
 
     while s < min(ih, iw):
-
         for i in range(0, ih, step_trans):
             for j in range(0, iw, step_trans):
                 if i+s <= ih and j+s <= iw:

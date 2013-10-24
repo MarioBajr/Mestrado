@@ -187,7 +187,7 @@ def run_svm(train_input, train_target, test_input, test_target):
 
     output = clf.predict(test_input)
     confusion_matrix(output, test_target)
-
+    return clf
 
 def run_adaboost(train_input, train_target, test_input, test_target):
     clf = AdaBoostClassifier(DecisionTreeClassifier(max_depth=1),
@@ -197,3 +197,4 @@ def run_adaboost(train_input, train_target, test_input, test_target):
 
     output = clf.predict(test_input)
     confusion_matrix(output, test_target)
+    return clf

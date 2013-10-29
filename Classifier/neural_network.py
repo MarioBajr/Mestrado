@@ -17,13 +17,23 @@ from elm.elm import ELMClassifier
 from elm.random_hidden_layer import SimpleRandomHiddenLayer, RBFRandomHiddenLayer
 
 
+def enum(**enums):
+    return type('Enum', (), enums)
+
+
+ELM_Type = enum(ELM_tan=0,
+                ELM_tan_lr=1,
+                ELM_sin=2,
+                ELM_tribas=3,
+                ELM_hardlim=4,
+                ELM_rbf=5)
+
 def run_lvq(train_input, train_target, test_input, test_target):
 
     #Convert Target Dimension
     train_target = target_1d_to_2d(train_target)
 
     p = train_target[:, 0].sum()/float(train_target.shape[0])
-    print "P: ", p, train_target.shape, train_target[:, 0].sum()
 
     #Train Network
     net = nl.net.newlvq(nl.tool.minmax(train_input), 30, [p, 1-p])
@@ -127,10 +137,6 @@ def roc_curve(results, targets):
 
 
 def make_classifiers():
-
-    names = ["ELM(10,tanh)", "ELM(10,tanh,LR)", "ELM(10,sinsq)",
-             "ELM(10,tribas)", "ELM(hardlim)", "ELM(20,rbf(0.1))"]
-
     nh = 10
 
     # pass user defined transfer func
@@ -161,24 +167,24 @@ def make_classifiers():
                    ELMClassifier(srhl_tanh, regressor=log_reg),
                    ELMClassifier(srhl_sinsq),
                    ELMClassifier(srhl_tribas),
-                   ELMClassifier(srhl_hardlim)]
-                   # ELMClassifier(srhl_rbf)]
+                   ELMClassifier(srhl_hardlim),
+                   ELMClassifier(srhl_rbf)]
+    return classifiers
 
-    return names, classifiers
 
+def run_elm(classifier_type, train_input, train_target, test_input, test_target):
 
-def run_elm(train_input, train_target, test_input, test_target):
+    classifiers = make_classifiers()
+    clf = classifiers[classifier_type]
 
-    names, classifiers = make_classifiers()
-    for name, clf in zip(names, classifiers):
-        print name
-        clf.fit(train_input, train_target)
+    clf.fit(train_input, train_target)
 
-        output = clf.predict(test_input)
-        confusion_matrix(output, test_target)
+    output = clf.predict(test_input)
+    confusion_matrix(output, test_target)
 
-        # score = clf.score(test_input, test_target)
-        # print score
+    # score = clf.score(test_input, test_target)
+    # print score
+    return clf
 
 
 def run_svm(train_input, train_target, test_input, test_target):

@@ -13,6 +13,7 @@ from sklearn.externals import joblib
 
 cache_prefix = '../Databases/Temp/net/'
 
+
 class Classifier(object):
 
     def __init__(self, features, scale):
@@ -71,6 +72,20 @@ class LVQClassifier(Classifier):
         results = self.net.sim(input)
         results = nn.target_2d_to_1d(results)
         return results
+
+
+class ELMClassifier(Classifier):
+    def __init__(self, classifier_type, features, scale):
+        super(ELMClassifier, self).__init__(features, scale)
+        self.classifier_type = classifier_type
+        self.net = self.__train()
+
+    def __train(self):
+        (train_target, train_input, test_target, test_input) = ps.process_network_inputs(self.features, self.scale)
+        return nn.run_elm(self.classifier_type, train_input, train_target, test_input, test_target)
+
+    def run(self, input):
+        return self.net.predict(input)
 
 class SVMClassifier(Classifier):
     def __init__(self, features, scale):
@@ -162,8 +177,8 @@ class Mixture(object):
 
             for i, result in enumerate(results):
                 if result == 1:
-
-                    cv.imwrite('../Databases/Temp/temp2/%s.png' % i, squares[i])
+                    draw_circle(dst, attrs[i][0], attrs[i][1], color, 1)
+                    #cv.imwrite('../Databases/Temp/temp2/%s.png' % i, squares[i])
                     #cv.rectangle(dst, attrs[i][0], attrs[i][1], color, 1)
 
                     if all_results[i] == -1:
@@ -173,15 +188,17 @@ class Mixture(object):
 
         for result in all_results:
             if result:
-                p0 = result[0]
-                p1 = result[1]
-
-                m = (p0[0]+((p1[0]-p0[0])/2.0), p0[1]+((p1[1]-p0[1])/2.0))
-
-                m = (int(m[0]), int(m[1]))
-                r = int(p1[0]-m[0])
-
-                cv.circle(dst, m, r, (255, 255, 0), 1)
+                draw_circle(dst, result[0], result[1], (255, 255, 0), 2)
                 #cv.rectangle(dst, result[0], result[1], (255, 255, 0), 2)
 
         return dst
+
+
+def draw_circle(im, p0, p1, color, thickness=1):
+    m = (p0[0]+((p1[0]-p0[0])/2.0), p0[1]+((p1[1]-p0[1])/2.0))
+
+    m = (int(m[0]), int(m[1]))
+    r = int(p1[0]-m[0])
+
+    cv.circle(im, m, r, color, thickness)
+    #cv.rectangle(dst, result[0], result[1], (255, 255, 0), 2)

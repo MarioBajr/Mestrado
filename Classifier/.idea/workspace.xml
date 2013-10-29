@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="391f34bf-2bf0-4628-9fb3-f905aa2d98b0" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/features/__init__.py" afterPath="$PROJECT_DIR$/features/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cascade_detect.py" afterPath="$PROJECT_DIR$/cascade_detect.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.py" afterPath="$PROJECT_DIR$/main.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mixture.py" afterPath="$PROJECT_DIR$/mixture.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/neural_network.py" afterPath="$PROJECT_DIR$/neural_network.py" />
@@ -36,20 +34,22 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="main.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="main.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="21" column="56" selection-start="586" selection-end="586" vertical-scroll-proportion="0.6896552" vertical-offset="85" max-vertical-offset="375">
+            <state line="13" column="68" selection-start="302" selection-end="302" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="390">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mixture.py" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="mixture.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/mixture.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="113" column="75" selection-start="3172" selection-end="3172" vertical-scroll-proportion="0.0" vertical-offset="1833" max-vertical-offset="2745">
-              <folding />
+            <state line="153" column="24" selection-start="4317" selection-end="4317" vertical-scroll-proportion="-0.39328063" vertical-offset="2494" max-vertical-offset="3135">
+              <folding>
+                <element signature="e#22#31#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -75,8 +75,10 @@
       <file leaf-file-name="neural_network.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/neural_network.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="66" column="0" selection-start="1846" selection-end="1846" vertical-scroll-proportion="0.0" vertical-offset="990" max-vertical-offset="3075">
-              <folding />
+            <state line="64" column="14" selection-start="1678" selection-end="1678" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3165">
+              <folding>
+                <element signature="e#48#57#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -84,7 +86,7 @@
       <file leaf-file-name="__init__.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/features/__init__.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="134" column="0" selection-start="3270" selection-end="3270" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2295">
+            <state line="136" column="29" selection-start="3301" selection-end="3301" vertical-scroll-proportion="0.0" vertical-offset="2040" max-vertical-offset="2370">
               <folding />
             </state>
           </provider>
@@ -93,10 +95,8 @@
       <file leaf-file-name="process_samples.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/process_samples.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="78" column="25" selection-start="1800" selection-end="1800" vertical-scroll-proportion="0.0" vertical-offset="1578" max-vertical-offset="2595">
-              <folding>
-                <element signature="e#47#56#0" expanded="true" />
-              </folding>
+            <state line="76" column="37" selection-start="1733" selection-end="1733" vertical-scroll-proportion="0.0" vertical-offset="753" max-vertical-offset="2520">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -127,19 +127,19 @@
         <option value="$PROJECT_DIR$/test.py" />
         <option value="$PROJECT_DIR$/convert_db.py" />
         <option value="$PROJECT_DIR$/features/gabor_filter.py" />
-        <option value="$PROJECT_DIR$/neural_network.py" />
         <option value="$PROJECT_DIR$/cascade_detect.py" />
-        <option value="$PROJECT_DIR$/mixture.py" />
-        <option value="$PROJECT_DIR$/process_samples.py" />
         <option value="$PROJECT_DIR$/features/__init__.py" />
+        <option value="$PROJECT_DIR$/neural_network.py" />
+        <option value="$PROJECT_DIR$/process_samples.py" />
         <option value="$PROJECT_DIR$/main.py" />
+        <option value="$PROJECT_DIR$/mixture.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
     <option name="y" value="22" />
     <option name="width" value="1920" />
-    <option name="height" value="774" />
+    <option name="height" value="1058" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
@@ -494,18 +494,18 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="22" width="1920" height="774" extended-state="6" />
-    <editor active="false" />
+    <frame x="0" y="22" width="1920" height="1058" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.110173956" sideWeight="0.6663113" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.21033211" sideWeight="0.63965887" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.1097852" sideWeight="0.56707317" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.21002387" sideWeight="0.56707317" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39658847" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.47859326" sideWeight="0.5003978" order="11" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.5152439" sideWeight="0.49960223" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.4319149" sideWeight="0.49960223" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -565,11 +565,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharm20/python_stubs/802780667/__builtin__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="479" column="4" selection-start="15860" selection-end="15860" vertical-scroll-proportion="0.33216783" vertical-offset="6995" max-vertical-offset="76485" />
-      </provider>
-    </entry>
     <entry file="file:///opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/sklearn/ensemble/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="23" column="0" selection-start="857" selection-end="857" vertical-scroll-proportion="0.3146853" vertical-offset="0" max-vertical-offset="572" />
@@ -605,9 +600,11 @@
         <state line="89" column="7" selection-start="4364" selection-end="4364" vertical-scroll-proportion="0.50174826" vertical-offset="1033" max-vertical-offset="1605" />
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/Library/Caches/PyCharm20/python_stubs/802780667/cv2/__init__.py">
+    <entry file="file://$PROJECT_DIR$/features/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1513" column="8" selection-start="44043" selection-end="44047" vertical-scroll-proportion="0.3315508" vertical-offset="22509" max-vertical-offset="34005" />
+        <state line="136" column="29" selection-start="3301" selection-end="3301" vertical-scroll-proportion="0.0" vertical-offset="2040" max-vertical-offset="2370">
+          <folding />
+        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/cascade_detect.py">
@@ -624,40 +621,49 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/neural_network.py">
+    <entry file="file://$PROJECT_DIR$/process_samples.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="66" column="0" selection-start="1846" selection-end="1846" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3075">
+        <state line="76" column="37" selection-start="1733" selection-end="1733" vertical-scroll-proportion="0.0" vertical-offset="753" max-vertical-offset="2520">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/process_samples.py">
+    <entry file="file:///opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/pickle.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="78" column="25" selection-start="1800" selection-end="1800" vertical-scroll-proportion="0.0" vertical-offset="1578" max-vertical-offset="2595">
+        <state line="747" column="0" selection-start="26113" selection-end="26113" vertical-scroll-proportion="-0.17786561" vertical-offset="11205" max-vertical-offset="20865">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/neurolab/net.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="44" column="4" selection-start="2231" selection-end="2231" vertical-scroll-proportion="1.1264822" vertical-offset="0" max-vertical-offset="5415">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/neural_network.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="64" column="14" selection-start="1678" selection-end="1678" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3165">
           <folding>
-            <element signature="e#47#56#0" expanded="true" />
+            <element signature="e#48#57#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/features/__init__.py">
+    <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="134" column="0" selection-start="3270" selection-end="3270" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2295">
+        <state line="13" column="68" selection-start="302" selection-end="302" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="390">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mixture.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="113" column="75" selection-start="3172" selection-end="3172" vertical-scroll-proportion="0.0" vertical-offset="1369" max-vertical-offset="2745">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="56" selection-start="586" selection-end="586" vertical-scroll-proportion="0.6896552" vertical-offset="85" max-vertical-offset="375">
-          <folding />
+        <state line="153" column="24" selection-start="4317" selection-end="4317" vertical-scroll-proportion="-0.39328063" vertical-offset="2494" max-vertical-offset="3135">
+          <folding>
+            <element signature="e#22#31#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

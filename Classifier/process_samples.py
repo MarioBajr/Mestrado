@@ -9,6 +9,9 @@ import features as ft
 import random
 import math
 
+from sklearn.externals import joblib
+from sklearn.decomposition import RandomizedPCA
+
 cache_file = '../Databases/Temp/net/'
 
 
@@ -17,7 +20,7 @@ def process_samples(features, scale):
     pos_path = '../Databases/lfwcrop_color/faces'
     neg_path = '../Databases/INRIA/negatives'
 
-    pos_features = features_from_images(pos_path, features, scale, variations=10)
+    pos_features = features_from_images(pos_path, features, scale, variations=5)
     neg_features = features_from_images(neg_path, features, scale)
     print 'processed:', pos_features.shape, neg_features.shape
 
@@ -60,7 +63,7 @@ def random_between(min, max):
 
 def generate_variations(im, q):
     results = [im]
-    for i in range(q):
+    for i in range(q-1):
         ang = random_between(-10, 10)
         out = rotate_image(im, ang)
         scale = random_between(.9, 1.1)
@@ -76,7 +79,7 @@ def features_from_images(images_folder, features, scale, variations=1):
 
     files = os.listdir(images_folder)
     files = remove_invalid_images(files)
-    files = files[:5000/variations]
+    files = files[:2000/variations]
 
     for f in files:
         im = cv.imread('%s/%s' % (images_folder, f))
@@ -139,8 +142,21 @@ def split_target_input(samples):
     return samples[:, 0], samples[:, 1:]
 
 
-def process_network_inputs(features, scale):
+def get_pca_path(features, scale):
+    features_name = "_".join(features)
+    return '%spca_%s_%s' % (cache_file, features_name, scale)
 
+
+def create_pca(pca_file_path, pos, neg):
+    n_components = 150
+    all = np.concatenate((pos, neg), axis=0)
+    pca = RandomizedPCA(n_components=n_components, whiten=True).fit(all)
+    joblib.dump(pca, pca_file_path)
+
+    return pca
+
+
+def process_network_inputs(features, scale):
     print features
     features_name = "_".join(features)
     train_file_path = '%strain_%s_%s' % (cache_file, features_name, scale)
@@ -153,6 +169,11 @@ def process_network_inputs(features, scale):
     else:
         print "Processing Samples"
         (pos, neg) = process_samples(features=features, scale=scale)
+
+        print "PCA"
+        pca = create_pca(get_pca_path(features, scale), pos, neg)
+        pos = pca.transform(pos)
+        neg = pca.transform(neg)
 
         print "Split Samples"
         (train, test) = split_classes(pos, neg, .7)

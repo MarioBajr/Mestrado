@@ -37,7 +37,7 @@ def run_lvq(train_input, train_target, test_input, test_target):
 
     #Train Network
     net = nl.net.newlvq(nl.tool.minmax(train_input), 30, [p, 1-p])
-    error = net.train(train_input, train_target, epochs=100, goal=.05, show=10, adapt=True)
+    error = net.train(train_input, train_target, epochs=20, goal=.05, show=10, adapt=True)
 
     #Plot Results
 #    import  pylab as pl
@@ -91,25 +91,24 @@ def confusion_matrix(results, targets):
     targets_2d = target_1d_to_2d(targets)
 
     tp = np.logical_and(targets_2d[:, 0], results_2d[:, 0]).sum()
-    fn = np.logical_and(targets_2d[:, 1], results_2d[:, 1]).sum()
-    tn = np.logical_and(targets_2d[:, 0], results_2d[:, 1]).sum()
+    tn = np.logical_and(targets_2d[:, 1], results_2d[:, 1]).sum()
+    fn = np.logical_and(targets_2d[:, 0], results_2d[:, 1]).sum()
     fp = np.logical_and(targets_2d[:, 1], results_2d[:, 0]).sum()
     p = tp + fn
     n = fp + tn
 
     print 'TP: ', tp,
-    print 'FN: ', fn
-    print 'TN: ', tn,
+    print 'TN: ', tn
+    print 'FN: ', fn,
     print 'FP: ', fp
     print ''
-    print 'Accuracy', (tp+tn)/float(p+n)
-    print 'Specificity', (tp+tn)/float(p+n)
-    print 'Precision', tp/float(tp+fp)
+    print 'Sensitivity', tp/float(tp+fn)
+    print 'Specificity', tn/float(fp+tn)
+    print 'PPV:', tp/float(tp+fp), 'PPN:', tn/float(tn+fn)
     print ''
-    print 'Rate: ', (tp+fn)/float(p+n)
-    print 'TP:', tp, 'FN:', fn, 'TN:', tn, 'FP:', fp, '(',  (tp+fn)/float(p+n), '%)'
+    print 'Rate: ', (tp+tn)/float(p+n)
+    print 'TP:', tp, 'TN:', tn, 'FP:', fp, 'FN:', fn, '(',  ((tp+tn)/float(p+n)*100), '%)'
     print '---------------------------------'
-
 
 def roc_curve(results, targets):
     curve = np.array([])
@@ -194,6 +193,7 @@ def run_svm(train_input, train_target, test_input, test_target):
     output = clf.predict(test_input)
     confusion_matrix(output, test_target)
     return clf
+
 
 def run_adaboost(train_input, train_target, test_input, test_target):
     clf = AdaBoostClassifier(DecisionTreeClassifier(max_depth=1),

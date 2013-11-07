@@ -10,8 +10,8 @@ from mixture import *
 if __name__ == '__main__':
 
     classifiers = [
-        #LVQClassifier([ft.Features.DAISY], .5),
-        ELMClassifier(nn.ELM_Type.ELM_sin, [ft.Features.DAISY], .5),
+        LVQClassifier([ft.Features.DAISY], .5),
+        #ELMClassifier(nn.ELM_Type.ELM_sin, [ft.Features.DAISY], .5),
         LVQClassifier([ft.Features.LBP, ft.Features.HOG], .5),
         LVQClassifier([ft.Features.LBP, ft.Features.GABOR], .25),
         AdaBoostClassifier([ft.Features.LBP, ft.Features.GABOR], .25)
@@ -19,6 +19,6 @@ if __name__ == '__main__':
 
     mixture = Mixture(classifiers)
 
-    im = cv.imread('../Databases/Temp/test/Mosaic.png')
+    im = cv.imread('../Databases/Temp/test/card.png')
     out = mixture.run(im)
     cv.imwrite('../Databases/Temp/test/output.png', out)

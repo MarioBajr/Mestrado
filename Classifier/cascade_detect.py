@@ -19,7 +19,7 @@ def pyramidal_scale(im, window_edge=64, step_trans=2, step_scale=1.2):
                     crop = im[i:i+s, j:j+s, :]
                     window = cv.resize(crop, (window_edge, window_edge))
                     patterns.append(window)
-                    attributes.append([(i, j), (i+s, j+s)])
+                    attributes.append([(j, i), (j+s, i+s)])
         s = int(s*step_scale)
 
     return attributes, patterns

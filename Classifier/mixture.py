@@ -21,8 +21,8 @@ class Classifier(object):
         self.features = features
         self.scale = scale
         self.net = self.train()
-        pca_path = ps.get_pca_path(features, scale)
-        self.pca = joblib.load(pca_path)
+        #pca_path = ps.get_pca_path(features, scale)
+        #self.pca = joblib.load(pca_path)
 
     def process_inputs(self):
         #return ts.test_samples(self.features, self.scale)
@@ -38,7 +38,8 @@ class Classifier(object):
         pass
 
     def run(self, x):
-        return self.pca.transform(x)
+        #return self.pca.transform(x)
+        return x
 
 
 class LVQClassifier(Classifier):

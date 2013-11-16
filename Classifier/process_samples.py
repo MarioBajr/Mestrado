@@ -171,9 +171,9 @@ def process_network_inputs(features, scale):
         (pos, neg) = process_samples(features=features, scale=scale)
 
         print "PCA"
-        pca = create_pca(get_pca_path(features, scale), pos, neg)
-        pos = pca.transform(pos)
-        neg = pca.transform(neg)
+        #pca = create_pca(get_pca_path(features, scale), pos, neg)
+        #pos = pca.transform(pos)
+        #neg = pca.transform(neg)
 
         print "Split Samples"
         (train, test) = split_classes(pos, neg, .7)

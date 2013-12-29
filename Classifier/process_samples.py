@@ -10,7 +10,7 @@ import random
 import math
 
 from sklearn.externals import joblib
-from sklearn.decomposition import RandomizedPCA
+from sklearn.decomposition import ProbabilisticPCA
 
 cache_file = '../Databases/Temp/net/'
 
@@ -79,7 +79,7 @@ def features_from_images(images_folder, features, scale, variations=1):
 
     files = os.listdir(images_folder)
     files = remove_invalid_images(files)
-    files = files[:2000/variations]
+    files = files[:100/variations]
 
     for f in files:
         im = cv.imread('%s/%s' % (images_folder, f))
@@ -150,7 +150,7 @@ def get_pca_path(features, scale):
 def create_pca(pca_file_path, pos, neg):
     n_components = 150
     all = np.concatenate((pos, neg), axis=0)
-    pca = RandomizedPCA(n_components=n_components, whiten=True).fit(all)
+    pca = ProbabilisticPCA(n_components=n_components, whiten=True).fit(all)
     joblib.dump(pca, pca_file_path)
 
     return pca
@@ -187,3 +187,50 @@ def process_network_inputs(features, scale):
 
     print "train:", train.shape, "test:", test.shape
     return train_target, train_input, test_target, test_input
+
+######### Face Recognition
+
+def faces_per_person():
+
+    images_folder = '../Databases/lfwcrop_color/faces'
+
+    files = os.listdir(images_folder )
+    files = remove_invalid_images(files)
+    files = files#[:100]
+
+    person_dict = {}
+
+    for f in files:
+        parts = f.split('_')
+        parts.pop()
+        name = " ".join(parts)
+        if not person_dict.has_key(name):
+            person_dict[name] = []
+        person_dict[name].append(f)
+
+    max_name = ''
+    max_count = 0
+
+    counters = []
+
+    for name in person_dict:
+        count = len(person_dict[name])
+        print name, count
+        max_count = max(max_count, count)
+        if max_count is count:
+            max_name = name
+
+        counters.append(count)
+
+    print len(person_dict), max_name, ":", max_count
+
+    print sorted(counters)
+
+        #im = cv.imread('%s/%s' % (images_folder, f))
+        #items = generate_variations(im, variations)
+        #for item in items:
+        #    # Extract Feature
+        #    var = cv.resize(item, (int(im.shape[0]*scale), int(im.shape[1]*scale)))
+        #    pattern = ft.compose_features(var, features)
+        #    patterns.append(pattern)
+    #return np.array(patterns)

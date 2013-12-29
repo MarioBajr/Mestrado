@@ -4,3 +4,5 @@
 #Giant database folder
 Databases/
 
+#Mac Noise
+.DS_Store

@@ -7,15 +7,16 @@ from skimage import morphology
 import os
 from geometry import *
 
-IMAGE_PATH = 'Resources/1.bmp'
+
+IMAGE_PATH = 'Resources/1.png'
 SKELETON_PATH = 'Resources/sk.png'
 
 NEW_SEG_GAP = 15
-LINK_SEG_GAP = int(NEW_SEG_GAP/3)
+LINK_SEG_GAP = int(NEW_SEG_GAP/2)
 INFLATE_GAP = NEW_SEG_GAP
 
-NEAR_MIN_DIST = 5
-NEAR_MIN_ANG = np.pi/60
+NEAR_MIN_DIST = 10
+NEAR_MIN_ANG = np.pi/36
 
 def process_skeleton():
     # Extract Skeleton
@@ -43,11 +44,15 @@ def process_skeleton():
 def clean_segments(segments):
     visited = []
 
-    def filter_small_segments(s):
-        return s.squared_length > 10
+    # def filter_small_segments(s):
+    #     return s.squared_length > 10
+    #
+    # list = filter(filter_small_segments, segments)
+    # print len(segments), len(list)
+    list = segments[:]
 
-    list = filter(filter_small_segments, segments)
-    print len(segments), len(list)
+    #work only with squared values to improve performance
+    SQUARED_NEAR_MIN_DIST = NEAR_MIN_DIST*NEAR_MIN_DIST
 
     have_changes = True
     while have_changes:
@@ -61,22 +66,28 @@ def clean_segments(segments):
             r1 = seg1.bounds
             r1.inflate(INFLATE_GAP)
 
+            # print "SEG1", seg1
+
             for seg2 in list2:
 
                 r2 = seg2.bounds
                 r2.inflate(INFLATE_GAP)
 
-                if r1.collide(r2):
-                    dist_s1 = seg1.distance(seg2.p1)
-                    dist_s2 = seg1.distance(seg2.p2)
+                # print " SEG2", seg2
 
-                    dist_s3 = seg2.distance(seg1.p1)
-                    dist_s4 = seg2.distance(seg1.p2)
+                if r1.collide(r2):
+                    dist_s1 = seg1.squared_distance(seg2.p1)
+                    dist_s2 = seg1.squared_distance(seg2.p2)
+
+                    dist_s3 = seg2.squared_distance(seg1.p1)
+                    dist_s4 = seg2.squared_distance(seg1.p2)
 
                     min_dist = min(dist_s1, dist_s2, dist_s3, dist_s4)
                     angle = Segment.angle_between(seg1, seg2)
 
-                    if angle <= NEAR_MIN_ANG and min_dist <= NEAR_MIN_DIST:
+                    # print " COLLIDE", min_dist, angle, SQUARED_NEAR_MIN_DIST
+
+                    if angle <= NEAR_MIN_ANG and min_dist <= SQUARED_NEAR_MIN_DIST:
                         have_changes = True
                         list.remove(seg1)
                         list.remove(seg2)
@@ -86,7 +97,7 @@ def clean_segments(segments):
                         s = Segment.union(seg1, seg2)
                         list.append(s)
 
-                        # print "remove", seg1, seg2, " ===> ", s
+                        print "remove", seg1, seg2, " ===> ", s
 
                 if have_changes:
                     break
@@ -181,7 +192,7 @@ def connect_segments(segments):
                         # if not create_segment:
                         #     list.remove(seg2)
                         #     print "remove", seg2
-
+                        #TODO
                         if dist_a == min_dist:
                             print 'A', seg1, seg2
                             if create_segment:
@@ -315,13 +326,14 @@ if __name__ == '__main__':
         segments.append(Segment(Point(x1, y1), Point(x2, y2)))
 
     # Filter Segments for DEBUG
-    # segments = filter_segment_at_rect(skeleton, segments, Rectangle(Point(1148, 340), Point(1400, 413)))
+    # segments = filter_segment_at_rect(skeleton, segments, Rectangle(Point(1730, 800), Point(1850, 850)))
 
     template = cv.cvtColor(skeleton, cv.COLOR_GRAY2RGBA)
-    base = cv.imread('Resources/1.bmp')
-    print base.shape
-    base = cv.cvtColor(base, cv.COLOR_RGB2RGBA)
-    template = base+template
+
+    #Print Base
+    # base = cv.imread('Resources/1.bmp')
+    # base = cv.cvtColor(base, cv.COLOR_RGB2RGBA)
+    # template = base+template
 
 
     write_segments(template, 'Resources/vec.png', segments)
@@ -333,3 +345,10 @@ if __name__ == '__main__':
     segments = connect_segments(segments)
 
     write_segments(template, 'Resources/seg.png', segments)
+
+    all_points = set([])
+    for s in segments:
+        all_points.add(s.p1)
+        all_points.add(s.p2)
+
+    print len(all_points)

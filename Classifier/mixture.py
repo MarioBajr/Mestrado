@@ -81,6 +81,7 @@ class LVQClassifier(Classifier):
 
     def run(self, x):
         x = super(LVQClassifier, self).run(x)
+        print x.shape
         results = self.net.sim(x)
         results = nn.target_2d_to_1d(results)
         return results
@@ -172,7 +173,7 @@ class Mixture(object):
 
         colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 255, 255)]
 
-        attrs, squares = cd.pyramidal_scale(im, step_trans=32)
+        attrs, squares = cd.pyramidal_scale(im, rect=(32, 32))
 
         all_results = [-1] * len(squares)
 

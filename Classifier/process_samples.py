@@ -17,15 +17,16 @@ cache_file = '../Databases/Temp/net/'
 
 def process_samples(features, scale):
 
-    pos_path = '../Databases/lfwcrop_color/faces'
-    neg_path = '../Databases/INRIA/negatives'
+    # pos_path = '../Databases/lfwcrop_color/faces'
+    # neg_path = '../Databases/INRIA/negatives'
+    pos_path = '../Databases/fdv54/face'
+    neg_path = '../Databases/fdv54/non-face'
 
-    pos_features = features_from_images(pos_path, features, scale, variations=5)
+    pos_features = features_from_images(pos_path, features, scale, variations=1)
     neg_features = features_from_images(neg_path, features, scale)
     print 'processed:', pos_features.shape, neg_features.shape
 
     return pos_features, neg_features
-
 
 def scale_image(im, s):
     h = int(im.shape[0]*s)
@@ -79,7 +80,7 @@ def features_from_images(images_folder, features, scale, variations=1):
 
     files = os.listdir(images_folder)
     files = remove_invalid_images(files)
-    files = files[:100/variations]
+    # files = files[:100/variations]
 
     for f in files:
         im = cv.imread('%s/%s' % (images_folder, f))
@@ -170,13 +171,14 @@ def process_network_inputs(features, scale):
         print "Processing Samples"
         (pos, neg) = process_samples(features=features, scale=scale)
 
-        print "PCA"
+        print "pos", pos.shape, "neg", neg.shape, scale
+        # print "PCA"
         #pca = create_pca(get_pca_path(features, scale), pos, neg)
         #pos = pca.transform(pos)
         #neg = pca.transform(neg)
 
         print "Split Samples"
-        (train, test) = split_classes(pos, neg, .7)
+        (train, test) = split_classes(pos, neg, .9)
 
         print "Storing Cache"
         np.save(train_file_path, train)

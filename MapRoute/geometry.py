@@ -54,6 +54,10 @@ class Point(object):
         return int(self.x), int(self.y)
 
     @staticmethod
+    def from_tuple(t):
+        return Point(t[0], t[1])
+
+    @staticmethod
     def interpolate(p1, p2, f):
         x = p1.x + (p2.x - p1.x)*f
         y = p1.y + (p2.y - p1.y)*f
@@ -194,11 +198,28 @@ class Segment(object):
         self._p2 = Point.max(p1, p2)
         self._p1.segments.add(self)
         self._p2.segments.add(self)
+        if p1 == p2:
+            raise KeyboardInterrupt
 
     def is_connected_with(self, s):
         c1 = s.connections
         c2 = self.connections
         return s in self.connections or len(c1.intersection(c2)) > 1
+
+    def nearest_distance_from_segment(self, s):
+        dist_s1 = self.squared_distance(s.p1)
+        dist_s2 = self.squared_distance(s.p2)
+
+        dist_s3 = s.squared_distance(self.p1)
+        dist_s4 = s.squared_distance(self.p2)
+
+        min1 = min(dist_s1, dist_s2)
+        min2 = min(dist_s3, dist_s4)
+
+        if min1 < min2:
+            return min1, self, [s.p1, s.p2][dist_s1 < dist_s2]
+        else:
+            return min2, s, [self.p1, self.p2][dist_s3 < dist_s4]
 
     def distance(self, p):
         return math.sqrt(self.squared_distance(p))
@@ -212,6 +233,9 @@ class Segment(object):
         py = y2-y1
 
         d = px*px + py*py
+
+        if d == 0:
+            return 0
 
         u = ((x3 - x1) * px + (y3 - y1) * py) / float(d)
 

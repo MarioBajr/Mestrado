@@ -11,8 +11,8 @@ from geometry import *
 IMAGE_PATH = 'Resources/1.png'
 SKELETON_PATH = 'Resources/sk.png'
 
-NEW_SEG_GAP = 15
-LINK_SEG_GAP = int(NEW_SEG_GAP/2)
+NEW_SEG_GAP = 12
+LINK_SEG_GAP = 10
 INFLATE_GAP = NEW_SEG_GAP
 
 NEAR_MIN_DIST = 10
@@ -44,12 +44,13 @@ def process_skeleton():
 def clean_segments(segments):
     visited = []
 
-    # def filter_small_segments(s):
-    #     return s.squared_length > 10
-    #
-    # list = filter(filter_small_segments, segments)
-    # print len(segments), len(list)
-    list = segments[:]
+    def filter_small_segments(s):
+        return s.squared_length > 50
+
+    list = filter(filter_small_segments, segments)
+    print len(segments), len(list)
+    # list = segments[:]
+
 
     #work only with squared values to improve performance
     SQUARED_NEAR_MIN_DIST = NEAR_MIN_DIST*NEAR_MIN_DIST
@@ -84,6 +85,7 @@ def clean_segments(segments):
 
                     min_dist = min(dist_s1, dist_s2, dist_s3, dist_s4)
                     angle = Segment.angle_between(seg1, seg2)
+                    angle = abs(min(angle, np.pi-angle))
 
                     # print " COLLIDE", min_dist, angle, SQUARED_NEAR_MIN_DIST
 
@@ -106,6 +108,10 @@ def clean_segments(segments):
             else:
                 visited.append(seg1)
                 list.remove(seg1)
+
+    print "finish clean", len(visited)
+    for i in visited:
+        print i
     return visited
 
 def connect_segments(segments):
@@ -148,6 +154,10 @@ def connect_segments(segments):
             for seg2 in list2:
 
                 print " SEG2", seg2
+
+                # if seg2.squared_length <= 1:
+                #     rm_seg(seg2)
+                #     continue
 
                 r2 = seg2.bounds
                 r2.inflate(INFLATE_GAP)
@@ -228,42 +238,22 @@ def connect_segments(segments):
 
                     gap = LINK_SEG_GAP*LINK_SEG_GAP
 
-                    dist_s1 = seg1.squared_distance(seg2.p1)
-                    dist_s2 = seg1.squared_distance(seg2.p2)
-                    min_dist = min(dist_s1, dist_s2)
+                    dist, s, p = seg1.nearest_distance_from_segment(seg2)
 
-                    s1 = None
-                    print "min", seg1, seg2, " <> ",  int(dist_s1), int(dist_s2), " >> ", min_dist, gap
-
-                    if min_dist < gap:
-                        s1 = seg1
-                        s2 = seg2
-                        p = [s2.p1, s2.p2][min_dist == dist_s2]
-
-                    dist_s1 = seg2.squared_distance(seg1.p1)
-                    dist_s2 = seg2.squared_distance(seg1.p2)
-                    min_dist = min(dist_s1, dist_s2)
-
-                    if min_dist < gap:
-                        s1 = seg2
-                        s2 = seg1
-                        p = [s2.p1, s2.p2][min_dist == dist_s2]
-
-                    print "min", seg1, seg2, " <> ",  int(dist_s1), int(dist_s2), " >> ", min_dist, gap
-                    if s1 is not None:
+                    if dist < gap:
                         print "--\n<Next>"
                         have_changes = True
 
-                        s = s1.perpendicular_segment(p)
-                        p0 = [s.p1, s.p2][Point.is_collinear(s1.p1, s1.p2, s.p1)]
-                        # p0 = Point(p0.x, p0.y)
+                        s0 = [seg1, seg2][s == seg1]
+                        p1 = [s0.p1, s0.p2][p == s0.p1]
+                        st = Segment(Segment.interpolate(s0, -1), Segment.interpolate(s0, 2))
+                        p0 = s.intersection(st)
 
-                        print s1, s2, ">>", p, s, p0
-
-                        rm_seg(s1)
-                        add_seg(Segment(s1.p1, p0))
-                        add_seg(Segment(s1.p2, p0))
-                        add_seg(Segment(p, p0))
+                        rm_seg(s0)
+                        rm_seg(s)
+                        add_seg(Segment(s.p1, p0))
+                        add_seg(Segment(s.p2, p0))
+                        add_seg(Segment(p1, p0))
 
                 if have_changes:
                     break
@@ -289,16 +279,12 @@ def draw_segments(im, segments):
         x2 = int(segment.p2.x)
         y2 = int(segment.p2.y)
 
-        r = int(np.random.random_sample()*255)
-        g = int(np.random.random_sample()*255)
-        b = int(np.random.random_sample()*255)
-
         color1 = [(0, 255, 0, 255), (0, 0, 255, 255)][segment.p1.is_joint()]
         color2 = [(0, 255, 0, 255), (0, 0, 255, 255)][segment.p2.is_joint()]
 
         cv.circle(im, (x1, y1), NEW_SEG_GAP, color1, 1)
         cv.circle(im, (x2, y2), NEW_SEG_GAP, color2, 1)
-        cv.line(im, (x1, y1), (x2, y2), (r, g, b, 255), 3)
+        cv.line(im, (x1, y1), (x2, y2), random_color(), 3)
 
 
 def write_segments(im, filename, segments):
@@ -316,8 +302,14 @@ def filter_segment_at_rect(im, segments, rect):
     return filter(filter_segment, segments)
 
 
-if __name__ == '__main__':
+def random_color():
+    r = int(np.random.random_sample()*255)
+    g = int(np.random.random_sample()*255)
+    b = int(np.random.random_sample()*255)
+    return r, g, b, 255
 
+
+def approach1():
     skeleton = process_skeleton()
 
     segments = []
@@ -331,7 +323,7 @@ if __name__ == '__main__':
     template = cv.cvtColor(skeleton, cv.COLOR_GRAY2RGBA)
 
     #Print Base
-    # base = cv.imread('Resources/1.bmp')
+    # base = cv.imread('Resources/1.png')
     # base = cv.cvtColor(base, cv.COLOR_RGB2RGBA)
     # template = base+template
 
@@ -346,9 +338,49 @@ if __name__ == '__main__':
 
     write_segments(template, 'Resources/seg.png', segments)
 
-    all_points = set([])
-    for s in segments:
-        all_points.add(s.p1)
-        all_points.add(s.p2)
 
-    print len(all_points)
+if __name__ == '__main__':
+
+    skeleton = process_skeleton()
+
+    contour, hier = cv.findContours(skeleton, cv.RETR_TREE, cv.CHAIN_APPROX_TC89_KCOS)
+
+    out = cv.cvtColor(skeleton, cv.COLOR_GRAY2RGB)
+
+    segments = []
+
+    for cnt in contour:
+
+        cnt2 = cv.approxPolyDP(cnt, 3, True)
+
+        cv.drawContours(out, [cnt2], 0, random_color(), 2)
+
+        l = cnt2.shape[0]
+        last_p = Point(cnt2[-1][0][0], cnt2[-1][0][1])
+        for i in range(l):
+            x = cnt2[i][0][0]
+            y = cnt2[i][0][1]
+            r = 3 + int(np.random.random_sample()*4)
+            cv.circle(out, (x, y), r, random_color(), -1)
+
+            curr_p = Point(x, y)
+            s = Segment(last_p, curr_p)
+            segments.append(s)
+            last_p = curr_p
+
+    # segments = filter_segment_at_rect(skeleton, segments, Rectangle(Point(500, 700), Point(600, 900)))
+
+    template = cv.cvtColor(skeleton, cv.COLOR_GRAY2RGBA)
+    #Print Base
+    base = cv.imread('Resources/1.png')
+    base = cv.cvtColor(base, cv.COLOR_RGB2RGBA)
+    template = base+template
+
+
+    write_segments(template, 'Resources/vec.png', segments)
+
+    segments = clean_segments(segments)
+    write_segments(template, 'Resources/clean.png', segments)
+
+    segments = connect_segments(segments)
+    write_segments(template, 'Resources/seg.png', segments)

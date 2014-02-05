@@ -37,7 +37,7 @@ def run_lvq(train_input, train_target, test_input, test_target):
 
     #Train Network
     net = nl.net.newlvq(nl.tool.minmax(train_input), 30, [p, 1-p])
-    error = net.train(train_input, train_target, epochs=200, goal=.001, show=10, adapt=True)
+    error = net.train(train_input, train_target, epochs=100, goal=.001, show=10, adapt=True)
 
     #Plot Results
 #    import  pylab as pl

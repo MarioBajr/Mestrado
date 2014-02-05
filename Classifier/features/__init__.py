@@ -148,6 +148,6 @@ def compose_features(im, features):
         else:
             output = _opencv_feature(f, output)
 
-    output = cv.resize(output, (20, 20))
-    return np.array(_receptive_fields(output))
-    #return np.reshape(output, -1)
+    # output = cv.resize(output, (20, 20))
+    # return np.array(_receptive_fields(output))
+    return np.reshape(output, -1)

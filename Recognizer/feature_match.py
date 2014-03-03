@@ -34,8 +34,8 @@ def match(img1, img2, dist=200, qtd=5):
         if len(rkp1) >= qtd:
             break
 
-    # newimg = drawKeyPoints(img1, img2, rkp1, rkp2, num=num)
-    # helper.showImage(newimg)
+    newimg = drawKeyPoints(img1, img2, rkp1, rkp2, num=num)
+    helper.showImage(newimg)
 
     return rkp1, rkp2, rdsc1, rdsc2
 
@@ -94,5 +94,16 @@ def drawKeyPoints(img1, img2, kp1, kp2, num=-1):
     for i in range(num):
         pt_a = (int(kp2[i].pt[0]), int(kp2[i].pt[1]+hdif))
         pt_b = (int(kp1[i].pt[0]+w2), int(kp1[i].pt[1]))
-        cv.line(newimg, pt_a, pt_b, (255, 0, 0))
+
+        #TEMP begin
+        dy = pt_a[1] - pt_b[1]
+
+        if abs(dy) < h1/5.0:
+            cv.line(newimg, pt_a, pt_b, (255, 0, 0))
+        else:
+            cv.line(newimg, pt_a, pt_b, (0, 0, 255))
+
+        #TEMP end
+
+        # cv.line(newimg, pt_a, pt_b, (255, 0, 0))
     return newimg

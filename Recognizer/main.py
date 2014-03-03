@@ -1,29 +1,36 @@
 __author__ = 'Mario'
 
-
+from config import *
 import cv2 as cv
 import numpy as np
 import neurolab as nl
 
-# import neural_network as nn
+import face
+import neural_network as nn
 import feature_match as fm
 
-PATH = '../Databases/lfwcrop_color/'
+PATH_LIST = '../Databases/lfwcrop_color/'
+PATH_IMG  = '../Databases/lfw_funneled/'
 
 def load_db(index):
     print "same"
-    train_same = load_train_file(PATH+'lists/'+index+'_train_same.txt')
+    train_same = load_train_file(PATH_LIST+'lists/'+index+'_train_same.txt')
 
     print "diff"
-    train_diff = load_train_file(PATH+'lists/'+index+'_train_diff.txt')
+    train_diff = load_train_file(PATH_LIST+'lists/'+index+'_train_diff.txt')
 
     print "same"
-    test_same = load_test_file(PATH+'lists/'+index+'_test_same.txt')
+    test_same = load_test_file(PATH_LIST+'lists/'+index+'_test_same.txt')
 
     print "diff"
-    test_diff = load_test_file(PATH+'lists/'+index+'_test_diff.txt')
+    test_diff = load_test_file(PATH_LIST+'lists/'+index+'_test_diff.txt')
 
     print "train - same", train_same.shape, "train - diff", train_diff.shape
+
+    np.set_printoptions(precision=3)
+    print train_same
+    print "---------"
+    print train_diff
 
     train_same = np.concatenate((np.ones((train_same.shape[0], 1)), train_same), axis=1)
     train_diff = np.concatenate((np.zeros((train_diff.shape[0], 1)), train_diff), axis=1)
@@ -50,15 +57,14 @@ def load_train_file(fname):
     i = 0
     ret = []
     for line in f:
-        data = proccess_images(line.split())
-        print data.shape
+        data = proccess_train_images(line.split())
         if min(data.shape) > 0:
             ret.append(data)
         i+=1
-        if i>=100:
+        if i>=QDT_DEBUG_LOAD:
             break
 
-    return np.concatenate(ret, axis=0)
+    return np.array(ret)
 
 def load_test_file(fname):
     f = open(fname, 'r')
@@ -66,26 +72,84 @@ def load_test_file(fname):
     i = 0
     ret = []
     for line in f:
-        data = proccess_images(line.split())
-        print data.shape
+        data = proccess_test_images(line.split())
         if min(data.shape) > 0:
             ret.append(data)
         i+=1
-        if i>=100:
+        if i>=QDT_DEBUG_LOAD:
             break
 
-    return ret
+    return np.array(ret)
 
-def proccess_images(imgs):
-    img1 = cv.imread(PATH+'faces_png/'+imgs[0]+'.png')
-    img2 = cv.imread(PATH+'faces_png/'+imgs[1]+'.png')
+def proccess_train_images(imgs):
 
-    kp1, kp2, ds1, ds2 = fm.match(img1, img2, qtd=5)
+    path1 = PATH_IMG+imgs[0][0:-5]+'/'+imgs[0]+'.jpg'
+    path2 = PATH_IMG+imgs[1][0:-5]+'/'+imgs[1]+'.jpg'
 
-    d1 = np.array(ds1)
-    d2 = np.array(ds2)
+    img1 = cv.imread(path1)
+    img2 = cv.imread(path2)
 
-    return np.concatenate((d1, d2), axis=0)
+
+
+    qtd = QDT_SIFT_FEATURES
+    kp1, kp2, ds1, ds2 = fm.match(img1, img2, qtd=qtd)
+
+    # d1 = np.array(ds1)
+    # d2 = np.array(ds2)
+
+    # return np.concatenate((d1, d2), axis=0)
+    return extract_features(img1.shape, qtd, kp1, kp2)
+
+def extract_features(shape, qtd, kp1, kp2):
+
+    h = shape[0]/3.0
+    d = shape[0]/4.0
+
+    y0 = 0
+    y1 = 0
+    y2 = 0
+
+    num = min(len(kp1), len(kp2))
+    for i in range(num):
+        dx = kp1[i].pt[0] - kp2[i].pt[0]
+        dy = kp1[i].pt[1] - kp2[i].pt[1]
+        ay = (kp1[i].pt[1] + kp2[i].pt[1])/2.0
+
+        if abs(dy) < d:
+            if ay < h:
+                y0 += 1
+            elif ay < 2*h:
+                y1 += 1
+            else:
+                y2 += 1
+
+    # print "In ", num, yt0, yf0, yt1, yf1, yt2, yf2
+
+    q = num/float(qtd)
+
+    a0 = y0/float(y0+y1+y2)
+    a1 = y1/float(y0+y1+y2)
+    a2 = y2/float(y0+y1+y2)
+
+    # print "Out", q, x0, x1, y0, y1, z0, z1
+
+    return np.array([q, a0, a1, a2])
+
+def proccess_test_images(imgs):
+    path1 = PATH_IMG+imgs[0][0:-5]+'/'+imgs[0]+'.jpg'
+    path2 = PATH_IMG+imgs[1][0:-5]+'/'+imgs[1]+'.jpg'
+
+    img1 = cv.imread(path1)
+    img2 = cv.imread(path2)
+
+    qtd = 10
+    kp1, kp2, ds1, ds2 = fm.match(img1, img2, qtd=qtd)
+
+    # d1 = np.array(ds1)
+    # d2 = np.array(ds2)
+    #
+    # return d1
+    return extract_features(img1.shape, qtd, kp1, kp2)
 
 if __name__ == '__main__':
 
@@ -99,22 +163,29 @@ if __name__ == '__main__':
 
     train_target, train_input, test_same, test_diff = load_db('01')
 
-    train_target = train_target.astype(np.int8, copy=False)
-    train_input = train_input.astype(np.int8, copy=False)
+    # train_target = train_target.astype(np.int8, copy=False)
+    # train_input = train_input.astype(np.int8, copy=False)
 
     # train_same = test_target.astype(np.int8, copy=False)
     # test_input = test_input.astype(np.int8, copy=False)
 
-    # print "train:", train.shape, "test:", test.shape
-    print train_target.dtype, train_input.dtype
-
+    train_target = nn.target_1d_to_2d(train_target)
 
     net = nl.net.newlvq(nl.tool.minmax(train_input), 30, [.5, .5])
-    error = net.train(train_input, train_target, epochs=100, goal=.001, show=10, adapt=True)
+    error = net.train(train_input, train_target, epochs=500, goal=.001, show=10, adapt=True)
 
-    
+    output = net.sim(test_same)
+    output = nn.target_2d_to_1d(output)
+    same_rate = output.sum()/len(output)
+    print "SAME", output, same_rate
 
 
-    # net = nn.run_lvq(train_input, train_target, test_input, test_target)
+    output = net.sim(test_diff)
+    output = nn.target_2d_to_1d(output)
+    diff_rate = (len(output)-output.sum())/len(output)
+    print "DIFF", output, diff_rate
+
+    print "RATE", (same_rate+diff_rate)/2.0
+
 
     cv.waitKey(0)

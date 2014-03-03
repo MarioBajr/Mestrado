@@ -4,7 +4,9 @@ import cv2 as cv
 
 SHOW_WINDOWS = 1
 WINDOW_X = 0
-WINDOW_Y = 100#1000
+WINDOW_Y = -500
+GAPX = 10
+GAPY = 20
 
 windowIndex = 0
 
@@ -15,8 +17,8 @@ def showImage(im):
         return
 
 
-    x = WINDOW_X + im.shape[1] * (windowIndex % 10)
-    y = WINDOW_Y + im.shape[0] * (windowIndex / 10)
+    x = WINDOW_X + (im.shape[1]+GAPX) * (windowIndex % 8)
+    y = WINDOW_Y + (im.shape[0]+GAPY) * (windowIndex / 8)
 
 
     cv.namedWindow('Image_Window-' + str(windowIndex))

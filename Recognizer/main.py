@@ -57,7 +57,7 @@ def load_train_file(fname):
     i = 0
     ret = []
     for line in f:
-        data = proccess_train_images(line.split())
+        data = proccess_images(line.split())
         if min(data.shape) > 0:
             ret.append(data)
         i+=1
@@ -72,7 +72,7 @@ def load_test_file(fname):
     i = 0
     ret = []
     for line in f:
-        data = proccess_test_images(line.split())
+        data = proccess_images(line.split())
         if min(data.shape) > 0:
             ret.append(data)
         i+=1
@@ -81,24 +81,41 @@ def load_test_file(fname):
 
     return np.array(ret)
 
-def proccess_train_images(imgs):
+def proccess_images(imgs):
 
     path1 = PATH_IMG+imgs[0][0:-5]+'/'+imgs[0]+'.jpg'
     path2 = PATH_IMG+imgs[1][0:-5]+'/'+imgs[1]+'.jpg'
 
-    img1 = cv.imread(path1)
-    img2 = cv.imread(path2)
+    image1 = cv.imread(path1)
+    image1 = image1[65:185, 65:185]#120
 
+    image2 = cv.imread(path2)
+    image2 = image2[65:185, 65:185]
 
+    cv.imwrite('~/Desktop/'+imgs[0]+'.png', image1)
+    cv.imwrite('~/Desktop/'+imgs[1]+'.png', image2)
+
+    # faceImage1 = face.FaceImage(path1)
+    # faceImage2 = face.FaceImage(path2)
+    #
+    # faceImage1.cropToFace()
+    # faceImage2.cropToFace()
+    #
+    # faceImage1.save('~/Desktop/'+imgs[0]+'.png')
+    # faceImage2.save('~/Desktop/'+imgs[1]+'.png')
+
+    # print (faceImage1.log)
+    # print (faceImage2.log)
 
     qtd = QDT_SIFT_FEATURES
-    kp1, kp2, ds1, ds2 = fm.match(img1, img2, qtd=qtd)
+    kp1, kp2, ds1, ds2 = fm.match(image1, image2, qtd=qtd)
+    # kp1, kp2, ds1, ds2 = fm.match(faceImage1.image, faceImage2.image, qtd=qtd)
 
     # d1 = np.array(ds1)
     # d2 = np.array(ds2)
 
     # return np.concatenate((d1, d2), axis=0)
-    return extract_features(img1.shape, qtd, kp1, kp2)
+    return extract_features(image1.shape, qtd, kp1, kp2)
 
 def extract_features(shape, qtd, kp1, kp2):
 
@@ -134,22 +151,6 @@ def extract_features(shape, qtd, kp1, kp2):
     # print "Out", q, x0, x1, y0, y1, z0, z1
 
     return np.array([q, a0, a1, a2])
-
-def proccess_test_images(imgs):
-    path1 = PATH_IMG+imgs[0][0:-5]+'/'+imgs[0]+'.jpg'
-    path2 = PATH_IMG+imgs[1][0:-5]+'/'+imgs[1]+'.jpg'
-
-    img1 = cv.imread(path1)
-    img2 = cv.imread(path2)
-
-    qtd = 10
-    kp1, kp2, ds1, ds2 = fm.match(img1, img2, qtd=qtd)
-
-    # d1 = np.array(ds1)
-    # d2 = np.array(ds2)
-    #
-    # return d1
-    return extract_features(img1.shape, qtd, kp1, kp2)
 
 if __name__ == '__main__':
 

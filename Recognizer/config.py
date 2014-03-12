@@ -1,5 +1,11 @@
 __author__ = 'Mario'
 
+#: For Debug purpose we load only a few samples from the database
+QDT_DEBUG_LOAD = 10
+
+#: Quantity of SIFT features
+QDT_SIFT_FEATURES = 20
+
 
 #: The path to the opencv install's Haar cascade folder
 HCDIR = '/opt/local/share/OpenCV/haarcascades/'
@@ -16,13 +22,34 @@ HC_RIGHTEYE_NAME = 'haarcascade_righteye_2splits.xml'
 #: The name of the face Haar cascade file to use
 HC_FACE_NAME = 'haarcascade_frontalface_alt2.xml'
 
+#: The final image height
+HEIGHT_TARGET = 64
+
+#: The final image width
+WIDTH_TARGET = 64
+
+#: What is used when the image must be offset too far? 0 for black border, 1 for stretch colors
+GAP_BORDER = 1
 
 
-#: For Debug purpose we load only a few samples from the database
-QDT_DEBUG_LOAD = 10
 
-#: Quantity of SIFT features
-QDT_SIFT_FEATURES = 20
+# Debugging parameters
+
+#: If True, print debug info
+DEBUG = True
+
+#: If true, will mark on the image the eyes/eyepairs which were selected to be used for calculations
+MARKUSED = True
+
+#: If true, will mark all eyes/eyepairs on the image
+MARKALL = True
+
+#: If true, don't perform the scale, offset, rotation (useful for debugging with MARKALL)
+NOTRANSFORM = True
+
+#: If true, skip individual eye/eyepair detection, and go to face detection
+FORCE_FULL_FACE = True
+
 
 
 # Face characteristics, may need to be tweaked per face
@@ -51,3 +78,43 @@ EYEPAIR_MIN_SIZE = (.15, .03)
 
 #: The maximum size detection threshold for eyepair as a fraction of the image size
 EYEPAIR_MAX_SIZE = (.55, 1)
+
+
+
+# Feature marking colors
+
+#: The color used to mark eyepairs
+EYEPAIR_COLOR = (255, 0, 0)
+
+#: The color used to mark left eyes
+LEFT_EYE_COLOR = (0, 255, 0)
+
+#: The color used to mark right eyes
+RIGHT_EYE_COLOR = (0, 0, 255)
+
+#: The color used to mark faces
+FACE_COLOR = (0, 255, 255)
+
+#: The color used to mark eye/eyepair center points
+MIDPOINT_COLOR = (100, 100, 100)
+
+
+
+# You probably don't need to change anything below this point
+
+#: The target eyeWidth:imageHeight
+EYEW_RATIO_TARGET = .25
+
+#: The target distance between eyes
+EYEW_TARGET = EYEW_RATIO_TARGET*HEIGHT_TARGET
+
+#: The target face midpoint coords:image ratio
+MID_X_TARGET_RATIO = .5
+MID_Y_TARGET_RATIO = .4
+
+#: The target x and y-components of the position of the midpoint of the face
+MID_X_TARGET = WIDTH_TARGET*MID_X_TARGET_RATIO
+MID_Y_TARGET = HEIGHT_TARGET*MID_Y_TARGET_RATIO
+
+#: Reject a left/right pair of eyes if one is larger by this factor or more
+EYE_MAX_SIZE_DIFFERENCE = 2
